@@ -6,28 +6,27 @@
     <title>Camarinians' Wall of Messages</title>
     <link href="https://fonts.cdnfonts.com/css/hk-modular" rel="stylesheet">
     
-    <!-- Firebase SDK -->
     <script type="module">
         // Import Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Firebase configuration
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAl9OlVDnZZpZwcWft9_jvdn_2VDpiBKbg",
             authDomain: "camarinians-wall.firebaseapp.com",
             projectId: "camarinians-wall",
-            storageBucket: "camarinians-wall.firebasestorage.app",
+            storageBucket: "camarinians-wall.appspot.com",
             messagingSenderId: "1019298262602",
             appId: "1:1019298262602:web:6aaa132d872515fc8580b3",
             measurementId: "G-5V0E174JPS"
         };
-
+    
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // Validate input
+    
+        // Validate inputs
         function validateInput() {
             const gradeInput = document.getElementById("gradeInput");
             const sectionInput = document.getElementById("sectionInput");
@@ -35,62 +34,68 @@
             const gradeError = document.getElementById("gradeError");
             const sectionError = document.getElementById("sectionError");
             const messageError = document.getElementById("messageError");
-
+    
             gradeError.textContent = gradeInput.value && !/^[0-9]+$/.test(gradeInput.value) ? "Grade level must contain only numbers." : "";
             sectionError.textContent = sectionInput.value.length > 0 && sectionInput.value.length < 5 ? "Section must have at least 5 letters." : "";
             messageError.textContent = messageInput.value.length > 100 ? "Message must be 100 characters or less." : "";
         }
-
+    
         // Submit message to Firestore
         async function submitMessage(event) {
             event.preventDefault();
-            const message = document.getElementById("messageInput").value;
+    
             const name = document.getElementById("nameInput").value || "Anonymous";
             const grade = document.getElementById("gradeInput").value || "-";
             const section = document.getElementById("sectionInput").value || "-";
-            const timestamp = new Date().toISOString();
-
+            const message = document.getElementById("messageInput").value;
+    
             if (document.getElementById("gradeError").textContent || 
                 document.getElementById("sectionError").textContent || 
                 document.getElementById("messageError").textContent) {
-                return;
+                return; // Stop if there are validation errors
             }
-
+    
             try {
                 await addDoc(collection(db, "messages"), {
-                    name, grade, section, message, timestamp
+                    name,
+                    grade,
+                    section,
+                    message,
+                    timestamp: serverTimestamp()
                 });
-
-                // Clear the form
+    
+                // Clear form after successful submission
                 document.getElementById("messageInput").value = "";
                 document.getElementById("nameInput").value = "";
                 document.getElementById("gradeInput").value = "";
                 document.getElementById("sectionInput").value = "";
             } catch (error) {
-                console.error("Error adding document: ", error);
+                console.error("Error adding message:", error);
             }
         }
-
+    
         // Load messages from Firestore
         function loadMessages() {
             const messagesContainer = document.getElementById("messagesContainer");
             const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
-
+    
             onSnapshot(q, (snapshot) => {
                 messagesContainer.innerHTML = ""; // Clear previous messages
                 snapshot.forEach((doc) => {
                     const data = doc.data();
                     const div = document.createElement("div");
                     div.className = "message";
-                    div.innerHTML = `<strong>${data.name} (Grade ${data.grade} - ${data.section})</strong><br>${data.message}<br><small>${new Date(data.timestamp).toLocaleString()}</small>`;
+                    div.innerHTML = `<strong>${data.name} (Grade ${data.grade} - ${data.section})</strong><br>${data.message}<br><small>${new Date(data.timestamp?.toDate()).toLocaleString()}</small>`;
                     messagesContainer.appendChild(div);
                 });
             });
         }
-
+    
         // Start loading messages when the page loads
         document.addEventListener("DOMContentLoaded", loadMessages);
+        document.querySelector("form").addEventListener("submit", submitMessage);
     </script>
+    
 
     <style>
         @import url('https://fonts.cdnfonts.com/css/hk-modular');
