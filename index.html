@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camarinians' Wall of Messages</title>
+    <link href="https://fonts.cdnfonts.com/css/hk-modular" rel="stylesheet">
+    <script>
+        function validateInput() {
+            const gradeInput = document.getElementById("gradeInput");
+            const sectionInput = document.getElementById("sectionInput");
+            const messageInput = document.getElementById("messageInput");
+            const gradeError = document.getElementById("gradeError");
+            const sectionError = document.getElementById("sectionError");
+            const messageError = document.getElementById("messageError");
+
+            gradeError.textContent = gradeInput.value && !/^[0-9]+$/.test(gradeInput.value) ? "Grade level must contain only numbers." : "";
+            sectionError.textContent = sectionInput.value.length > 0 && sectionInput.value.length < 5 ? "Section must have at least 5 letters." : "";
+            messageError.textContent = messageInput.value.length > 100 ? "Message must be 100 characters or less." : "";
+        }
+
+        function submitMessage(event) {
+            event.preventDefault();
+            const message = document.getElementById("messageInput").value;
+            const name = document.getElementById("nameInput").value;
+            const grade = document.getElementById("gradeInput").value;
+            const section = document.getElementById("sectionInput").value;
+            const timestamp = new Date().toLocaleString();
+
+            if (document.getElementById("gradeError").textContent || document.getElementById("sectionError").textContent || document.getElementById("messageError").textContent) {
+                return;
+            }
+            
+            const newMessage = { text: message, name, grade, section, timestamp };
+            
+            const messagesContainer = document.getElementById("messagesContainer");
+            const div = document.createElement("div");
+            div.className = "message";
+            div.innerHTML = `<strong>${name || "Anonymous"} (Grade ${grade || "-"} - ${section || "-"})</strong><br>${message}<br><small>${timestamp}</small>`;
+            messagesContainer.appendChild(div);
+            
+            document.getElementById("messageInput").value = "";
+            document.getElementById("nameInput").value = "";
+            document.getElementById("gradeInput").value = "";
+            document.getElementById("sectionInput").value = "";
+        }
+    </script>
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/hk-modular');
+        
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #3b82f6, #9333ea, #14b8a6, #ef4444);
+            background-size: 300% 300%;
+            animation: gradientAnimation 8s ease infinite;
+            font-family: 'HK Modular', sans-serif;
+            padding: 20px;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+            text-align: left;
+            margin-top: 5px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 2px solid #ccc;
+            border-radius: 12px;
+            resize: none;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus, textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
+            outline: none;
+        }
+        button {
+            margin-top: 15px;
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Camarinians' Wall of Messages</h1>
+        <p>Share your thoughts and experiences from this school year.</p>
+        <form onsubmit="submitMessage(event)">
+            <input type="text" id="nameInput" placeholder="Your Name (optional)">
+            <input type="text" id="gradeInput" placeholder="Grade (optional)" oninput="validateInput()">
+            <div id="gradeError" class="error"></div>
+            <input type="text" id="sectionInput" placeholder="Section (optional)" oninput="validateInput()">
+            <div id="sectionError" class="error"></div>
+            <textarea id="messageInput" rows="4" placeholder="Type your message here..." maxlength="100" oninput="validateInput()"></textarea>
+            <div id="messageError" class="error"></div>
+            <button type="submit">Submit Message</button>
+        </form>
+    </div>
+</body>
+</html>
