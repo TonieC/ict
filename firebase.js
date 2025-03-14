@@ -1,6 +1,6 @@
 // Import Firebase modules
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "firebase/firestore"; 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 // Your Firebase project configuration
 const firebaseConfig = {
