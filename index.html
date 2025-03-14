@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Camarinians' Wall of Messages</title>
     <link href="https://fonts.cdnfonts.com/css/hk-modular" rel="stylesheet">
-    
+
     <script type="module">
+        // Import Firebase modules (latest version)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-        
-        // ✅ Firebase Config
+
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAl9OlVDnZZpZwcWft9_jvdn_2VDpiBKbg",
             authDomain: "camarinians-wall.firebaseapp.com",
@@ -21,12 +22,13 @@
             measurementId: "G-5V0E174JPS"
         };
 
-        // ✅ Initialize Firebase
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
         console.log("✅ Firebase initialized successfully!");
 
-        // ✅ Validate Inputs
+        // Validate inputs
         function validateInput() {
             const gradeInput = document.getElementById("gradeInput");
             const sectionInput = document.getElementById("sectionInput");
@@ -40,7 +42,7 @@
             messageError.textContent = messageInput.value.length > 100 ? "Message must be 100 characters or less." : "";
         }
 
-        // ✅ Submit Message
+        // Submit message to Firestore
         async function submitMessage(event) {
             event.preventDefault();
 
@@ -49,11 +51,10 @@
             const section = document.getElementById("sectionInput").value || "-";
             const message = document.getElementById("messageInput").value;
 
-            // Stop if validation errors exist
             if (document.getElementById("gradeError").textContent || 
                 document.getElementById("sectionError").textContent || 
                 document.getElementById("messageError").textContent) {
-                return;
+                return; // Stop if there are validation errors
             }
 
             try {
@@ -65,19 +66,21 @@
                     timestamp: serverTimestamp()
                 });
 
+                alert("✅ Message submitted successfully!");
+                loadMessages(); // Reload messages after submitting
+
                 // Clear form after successful submission
                 document.getElementById("messageInput").value = "";
                 document.getElementById("nameInput").value = "";
                 document.getElementById("gradeInput").value = "";
                 document.getElementById("sectionInput").value = "";
-
-                console.log("✅ Message submitted successfully!");
             } catch (error) {
                 console.error("❌ Error adding message:", error);
+                alert("Failed to submit message.");
             }
         }
 
-        // ✅ Load Messages
+        // Load messages from Firestore
         function loadMessages() {
             const messagesContainer = document.getElementById("messagesContainer");
             const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
@@ -94,12 +97,14 @@
             });
         }
 
-        // ✅ Start loading messages when the page loads
+        // Start loading messages when the page loads
         document.addEventListener("DOMContentLoaded", loadMessages);
         document.querySelector("form").addEventListener("submit", submitMessage);
     </script>
 
     <style>
+        @import url('https://fonts.cdnfonts.com/css/hk-modular');
+        
         body {
             display: flex;
             flex-direction: column;
@@ -153,10 +158,12 @@
             transition: all 0.3s ease;
             font-size: 16px;
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         button:hover {
             background: #1e40af;
             transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         }
         #messagesContainer {
             margin-top: 20px;
@@ -179,11 +186,7 @@
         <form>
             <input type="text" id="nameInput" placeholder="Your Name (optional)">
             <input type="text" id="gradeInput" placeholder="Grade (optional)" oninput="validateInput()">
-            <div id="gradeError" class="error"></div>
-            <input type="text" id="sectionInput" placeholder="Section (optional)" oninput="validateInput()">
-            <div id="sectionError" class="error"></div>
-            <textarea id="messageInput" rows="4" placeholder="Type your message here..." maxlength="100" oninput="validateInput()"></textarea>
-            <div id="messageError" class="error"></div>
+            <textarea id="messageInput" rows="4" placeholder="Type your message here..." maxlength="100"></textarea>
             <button type="submit">Submit Message</button>
         </form>
     </div>
